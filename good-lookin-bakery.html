@@ -1,0 +1,904 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Good Lookin' Bakery</title>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400;1,700&family=Lato:wght@300;400;700&display=swap" rel="stylesheet"/>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --cream: #FAF3E8;
+      --warm-white: #FDF9F2;
+      --brown: #3B1F0E;
+      --caramel: #C07A34;
+      --gold: #E8A435;
+      --blush: #E8C4A0;
+      --rust: #A0491C;
+      --soft-brown: #7A4F2E;
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: 'Lato', sans-serif;
+      background: var(--cream);
+      color: var(--brown);
+      overflow-x: hidden;
+    }
+
+    /* ---- GRAIN OVERLAY ---- */
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
+      pointer-events: none;
+      z-index: 1000;
+      opacity: 0.5;
+    }
+
+    /* ---- NAV ---- */
+    nav {
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      z-index: 100;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 1.2rem 4rem;
+      background: rgba(250, 243, 232, 0.92);
+      backdrop-filter: blur(10px);
+      border-bottom: 1px solid rgba(192, 122, 52, 0.15);
+      transition: box-shadow 0.3s;
+    }
+    nav.scrolled { box-shadow: 0 2px 20px rgba(59,31,14,0.08); }
+
+    .nav-logo {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.6rem;
+      font-weight: 900;
+      font-style: italic;
+      color: var(--brown);
+      letter-spacing: -0.5px;
+    }
+    .nav-logo span { color: var(--caramel); }
+
+    .nav-links {
+      display: flex;
+      gap: 2.5rem;
+      list-style: none;
+    }
+    .nav-links a {
+      text-decoration: none;
+      font-size: 0.82rem;
+      font-weight: 700;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--soft-brown);
+      transition: color 0.2s;
+    }
+    .nav-links a:hover { color: var(--caramel); }
+
+    .nav-cta {
+      background: var(--brown);
+      color: var(--cream) !important;
+      padding: 0.55rem 1.4rem;
+      border-radius: 2px;
+      transition: background 0.2s !important;
+    }
+    .nav-cta:hover { background: var(--caramel) !important; color: white !important; }
+
+    /* ---- HERO ---- */
+    .hero {
+      min-height: 100vh;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      align-items: center;
+      padding: 0 4rem;
+      padding-top: 5rem;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .hero-bg-circle {
+      position: absolute;
+      right: -10%;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 55vw;
+      height: 55vw;
+      border-radius: 50%;
+      background: radial-gradient(circle at 40% 40%, #EEDFC0, #D9A86C 60%, #C07A34);
+      opacity: 0.28;
+      z-index: 0;
+    }
+
+    .hero-content {
+      position: relative;
+      z-index: 2;
+      animation: fadeUp 0.9s ease both;
+    }
+
+    .hero-eyebrow {
+      font-size: 0.75rem;
+      font-weight: 700;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: var(--caramel);
+      margin-bottom: 1.2rem;
+      display: flex;
+      align-items: center;
+      gap: 0.8rem;
+    }
+    .hero-eyebrow::before {
+      content: '';
+      display: block;
+      width: 32px;
+      height: 2px;
+      background: var(--caramel);
+    }
+
+    .hero h1 {
+      font-family: 'Playfair Display', serif;
+      font-size: clamp(3.5rem, 6vw, 6rem);
+      font-weight: 900;
+      line-height: 1.0;
+      letter-spacing: -1px;
+      color: var(--brown);
+      margin-bottom: 1.5rem;
+    }
+    .hero h1 em {
+      font-style: italic;
+      color: var(--caramel);
+    }
+
+    .hero-desc {
+      font-size: 1.05rem;
+      line-height: 1.75;
+      color: var(--soft-brown);
+      max-width: 420px;
+      margin-bottom: 2.5rem;
+      font-weight: 300;
+    }
+
+    .hero-actions {
+      display: flex;
+      gap: 1.2rem;
+      align-items: center;
+    }
+
+    .btn-primary {
+      background: var(--brown);
+      color: var(--cream);
+      padding: 0.9rem 2.2rem;
+      font-family: 'Lato', sans-serif;
+      font-size: 0.8rem;
+      font-weight: 700;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      border: none;
+      cursor: pointer;
+      text-decoration: none;
+      display: inline-block;
+      transition: background 0.25s, transform 0.2s;
+    }
+    .btn-primary:hover { background: var(--rust); transform: translateY(-2px); }
+
+    .btn-ghost {
+      color: var(--brown);
+      font-size: 0.8rem;
+      font-weight: 700;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      text-decoration: none;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      transition: gap 0.2s, color 0.2s;
+    }
+    .btn-ghost:hover { gap: 0.9rem; color: var(--caramel); }
+    .btn-ghost::after { content: '→'; font-size: 1.1rem; }
+
+    .hero-image-wrap {
+      position: relative;
+      z-index: 2;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      animation: fadeUp 0.9s 0.2s ease both;
+    }
+
+    .hero-badge {
+      position: absolute;
+      bottom: 12%;
+      left: -5%;
+      background: var(--brown);
+      color: var(--cream);
+      width: 110px;
+      height: 110px;
+      border-radius: 50%;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      font-family: 'Playfair Display', serif;
+      font-style: italic;
+      font-size: 0.82rem;
+      line-height: 1.3;
+      z-index: 3;
+      box-shadow: 0 8px 32px rgba(59,31,14,0.22);
+      animation: spin 30s linear infinite;
+    }
+
+    .hero-illustration {
+      width: 420px;
+      height: 420px;
+      border-radius: 50% 40% 50% 40%;
+      background: linear-gradient(135deg, #E8C4A0 0%, #D4956A 50%, #C07A34 100%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 10rem;
+      box-shadow:
+        inset 0 -20px 40px rgba(160,73,28,0.3),
+        0 20px 60px rgba(59,31,14,0.15);
+      position: relative;
+    }
+
+    /* ---- MARQUEE STRIP ---- */
+    .marquee-strip {
+      background: var(--brown);
+      padding: 1rem 0;
+      overflow: hidden;
+      white-space: nowrap;
+    }
+    .marquee-track {
+      display: inline-block;
+      animation: marquee 18s linear infinite;
+    }
+    .marquee-track span {
+      font-family: 'Playfair Display', serif;
+      font-style: italic;
+      font-size: 1rem;
+      color: var(--gold);
+      padding: 0 2.5rem;
+      letter-spacing: 0.05em;
+    }
+    .marquee-track span.dot {
+      color: var(--blush);
+      font-style: normal;
+      font-size: 1.2rem;
+    }
+
+    /* ---- ABOUT ---- */
+    .about {
+      padding: 7rem 4rem;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 6rem;
+      align-items: center;
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+
+    .about-visual {
+      position: relative;
+    }
+
+    .about-card {
+      background: var(--warm-white);
+      border: 1px solid rgba(192,122,52,0.2);
+      padding: 3rem;
+      position: relative;
+    }
+    .about-card::before {
+      content: '"';
+      font-family: 'Playfair Display', serif;
+      font-size: 8rem;
+      color: var(--gold);
+      opacity: 0.25;
+      position: absolute;
+      top: -1.5rem;
+      left: 2rem;
+      line-height: 1;
+    }
+
+    .about-stat {
+      display: flex;
+      gap: 3rem;
+      margin-top: 2rem;
+    }
+    .stat-num {
+      font-family: 'Playfair Display', serif;
+      font-size: 2.8rem;
+      font-weight: 900;
+      color: var(--caramel);
+      line-height: 1;
+    }
+    .stat-label {
+      font-size: 0.75rem;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--soft-brown);
+      margin-top: 0.3rem;
+    }
+
+    .about-text h2 {
+      font-family: 'Playfair Display', serif;
+      font-size: clamp(2rem, 3.5vw, 3rem);
+      font-weight: 900;
+      line-height: 1.15;
+      margin-bottom: 1.5rem;
+      color: var(--brown);
+    }
+    .about-text h2 em { font-style: italic; color: var(--caramel); }
+
+    .about-text p {
+      font-size: 1rem;
+      line-height: 1.8;
+      color: var(--soft-brown);
+      font-weight: 300;
+      margin-bottom: 1rem;
+    }
+
+    /* ---- MENU ---- */
+    .menu-section {
+      background: var(--brown);
+      padding: 7rem 4rem;
+    }
+
+    .section-header {
+      text-align: center;
+      margin-bottom: 4rem;
+    }
+    .section-eyebrow {
+      font-size: 0.75rem;
+      font-weight: 700;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: var(--gold);
+      margin-bottom: 1rem;
+    }
+    .section-title {
+      font-family: 'Playfair Display', serif;
+      font-size: clamp(2.2rem, 4vw, 3.5rem);
+      font-weight: 900;
+      color: var(--cream);
+      line-height: 1.1;
+    }
+    .section-title em { font-style: italic; color: var(--gold); }
+
+    .menu-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 2px;
+      max-width: 1100px;
+      margin: 0 auto;
+    }
+
+    .menu-item {
+      background: rgba(255,255,255,0.04);
+      padding: 2.5rem;
+      border: 1px solid rgba(255,255,255,0.06);
+      transition: background 0.3s, transform 0.3s;
+      cursor: default;
+      position: relative;
+      overflow: hidden;
+    }
+    .menu-item::after {
+      content: '';
+      position: absolute;
+      bottom: 0; left: 0;
+      width: 0;
+      height: 2px;
+      background: var(--gold);
+      transition: width 0.4s;
+    }
+    .menu-item:hover { background: rgba(255,255,255,0.08); transform: translateY(-4px); }
+    .menu-item:hover::after { width: 100%; }
+
+    .menu-emoji { font-size: 2.5rem; margin-bottom: 1rem; display: block; }
+    .menu-name {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.3rem;
+      font-weight: 700;
+      color: var(--cream);
+      margin-bottom: 0.5rem;
+    }
+    .menu-desc {
+      font-size: 0.88rem;
+      color: rgba(250,243,232,0.55);
+      line-height: 1.6;
+      font-weight: 300;
+    }
+    .menu-price {
+      margin-top: 1.2rem;
+      font-size: 1rem;
+      font-weight: 700;
+      color: var(--gold);
+      letter-spacing: 0.05em;
+    }
+
+    /* ---- SPECIALS ---- */
+    .specials {
+      padding: 7rem 4rem;
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+
+    .specials-grid {
+      display: grid;
+      grid-template-columns: 2fr 1fr;
+      gap: 2rem;
+      margin-top: 3.5rem;
+    }
+
+    .special-feature {
+      background: var(--warm-white);
+      border: 1px solid rgba(192,122,52,0.18);
+      padding: 3.5rem;
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-end;
+      min-height: 380px;
+      position: relative;
+      overflow: hidden;
+    }
+    .special-feature::before {
+      content: '🥐';
+      position: absolute;
+      top: 2rem;
+      right: 2rem;
+      font-size: 5rem;
+      opacity: 0.15;
+    }
+
+    .special-tag {
+      display: inline-block;
+      background: var(--caramel);
+      color: white;
+      font-size: 0.65rem;
+      font-weight: 700;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      padding: 0.3rem 0.8rem;
+      margin-bottom: 1rem;
+      width: fit-content;
+    }
+    .special-name {
+      font-family: 'Playfair Display', serif;
+      font-size: 2rem;
+      font-weight: 900;
+      color: var(--brown);
+      margin-bottom: 0.8rem;
+      line-height: 1.1;
+    }
+    .special-desc {
+      font-size: 0.95rem;
+      color: var(--soft-brown);
+      font-weight: 300;
+      line-height: 1.7;
+    }
+
+    .special-side {
+      display: flex;
+      flex-direction: column;
+      gap: 2rem;
+    }
+
+    .special-small {
+      background: var(--caramel);
+      padding: 2rem;
+      flex: 1;
+      position: relative;
+      overflow: hidden;
+    }
+    .special-small:last-child {
+      background: var(--blush);
+    }
+    .special-small .special-name { font-size: 1.3rem; color: white; }
+    .special-small:last-child .special-name { color: var(--brown); }
+    .special-small .special-desc { color: rgba(255,255,255,0.8); font-size: 0.85rem; }
+    .special-small:last-child .special-desc { color: var(--soft-brown); }
+
+    /* ---- HOURS ---- */
+    .hours-section {
+      background: var(--warm-white);
+      padding: 5rem 4rem;
+      border-top: 1px solid rgba(192,122,52,0.12);
+      border-bottom: 1px solid rgba(192,122,52,0.12);
+    }
+
+    .hours-inner {
+      max-width: 900px;
+      margin: 0 auto;
+      display: grid;
+      grid-template-columns: 1fr 2px 1fr 2px 1fr;
+      gap: 3rem;
+      align-items: start;
+    }
+
+    .hours-divider {
+      background: rgba(192,122,52,0.2);
+      height: 100%;
+      min-height: 100px;
+    }
+
+    .hours-block h3 {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.2rem;
+      font-weight: 700;
+      color: var(--brown);
+      margin-bottom: 0.8rem;
+    }
+    .hours-block p {
+      font-size: 0.9rem;
+      color: var(--soft-brown);
+      line-height: 1.8;
+      font-weight: 300;
+    }
+    .hours-block strong { font-weight: 700; color: var(--caramel); }
+
+    /* ---- CONTACT ---- */
+    .contact-section {
+      padding: 7rem 4rem;
+      text-align: center;
+      background: var(--cream);
+    }
+
+    .contact-inner {
+      max-width: 600px;
+      margin: 0 auto;
+    }
+
+    .contact-section .section-title { color: var(--brown); }
+    .contact-section .section-title em { color: var(--caramel); }
+
+    .contact-section p {
+      font-size: 1rem;
+      color: var(--soft-brown);
+      margin: 1.5rem 0 2.5rem;
+      line-height: 1.75;
+      font-weight: 300;
+    }
+
+    .contact-details {
+      display: flex;
+      justify-content: center;
+      gap: 3rem;
+      margin-top: 3rem;
+      flex-wrap: wrap;
+    }
+
+    .contact-item {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0.4rem;
+    }
+    .contact-icon { font-size: 1.5rem; }
+    .contact-label {
+      font-size: 0.7rem;
+      font-weight: 700;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      color: var(--caramel);
+    }
+    .contact-value {
+      font-size: 0.95rem;
+      color: var(--brown);
+      font-weight: 400;
+    }
+
+    /* ---- FOOTER ---- */
+    footer {
+      background: var(--brown);
+      padding: 2.5rem 4rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .footer-logo {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.3rem;
+      font-weight: 900;
+      font-style: italic;
+      color: var(--cream);
+    }
+    .footer-logo span { color: var(--gold); }
+
+    footer p {
+      font-size: 0.78rem;
+      color: rgba(250,243,232,0.4);
+      letter-spacing: 0.05em;
+    }
+
+    /* ---- ANIMATIONS ---- */
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(30px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    @keyframes marquee {
+      from { transform: translateX(0); }
+      to { transform: translateX(-50%); }
+    }
+    @keyframes spin {
+      from { transform: rotate(0deg); }
+      to { transform: rotate(360deg); }
+    }
+
+    /* ---- RESPONSIVE ---- */
+    @media (max-width: 900px) {
+      nav { padding: 1rem 1.5rem; }
+      .nav-links { display: none; }
+      .hero { grid-template-columns: 1fr; padding: 2rem 1.5rem; padding-top: 6rem; text-align: center; }
+      .hero-image-wrap { display: none; }
+      .hero-eyebrow { justify-content: center; }
+      .hero-actions { justify-content: center; }
+      .hero-desc { margin: 0 auto 2.5rem; }
+      .about { grid-template-columns: 1fr; padding: 4rem 1.5rem; gap: 3rem; }
+      .menu-section { padding: 5rem 1.5rem; }
+      .menu-grid { grid-template-columns: 1fr; }
+      .specials { padding: 5rem 1.5rem; }
+      .specials-grid { grid-template-columns: 1fr; }
+      .hours-section { padding: 4rem 1.5rem; }
+      .hours-inner { grid-template-columns: 1fr; }
+      .hours-divider { display: none; }
+      .contact-section { padding: 5rem 1.5rem; }
+      footer { flex-direction: column; gap: 1rem; text-align: center; padding: 2rem; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- NAV -->
+  <nav id="navbar">
+    <div class="nav-logo">Good Lookin<span>'</span></div>
+    <ul class="nav-links">
+      <li><a href="#menu">Menu</a></li>
+      <li><a href="#specials">Specials</a></li>
+      <li><a href="#about">Our Story</a></li>
+      <li><a href="#contact" class="nav-cta">Visit Us</a></li>
+    </ul>
+  </nav>
+
+  <!-- HERO -->
+  <section class="hero">
+    <div class="hero-bg-circle"></div>
+    <div class="hero-content">
+      <div class="hero-eyebrow">Baked fresh daily</div>
+      <h1>Baked with<br><em>love &amp;</em><br>a little flour.</h1>
+      <p class="hero-desc">Good Lookin' is your neighborhood bakery where every loaf, pastry, and cookie is made from scratch with real ingredients and a whole lot of heart.</p>
+      <div class="hero-actions">
+        <a href="#menu" class="btn-primary">See the Menu</a>
+        <a href="#contact" class="btn-ghost">Find Us</a>
+      </div>
+    </div>
+    <div class="hero-image-wrap">
+      <div class="hero-illustration">🍞</div>
+      <div class="hero-badge">Est.<br>2018<br>✦</div>
+    </div>
+  </section>
+
+  <!-- MARQUEE -->
+  <div class="marquee-strip">
+    <div class="marquee-track">
+      <span>Sourdough</span><span class="dot">✦</span>
+      <span>Croissants</span><span class="dot">✦</span>
+      <span>Cinnamon Rolls</span><span class="dot">✦</span>
+      <span>Artisan Loaves</span><span class="dot">✦</span>
+      <span>Custom Cakes</span><span class="dot">✦</span>
+      <span>Cookies</span><span class="dot">✦</span>
+      <span>Muffins</span><span class="dot">✦</span>
+      <span>Seasonal Pies</span><span class="dot">✦</span>
+      <span>Sourdough</span><span class="dot">✦</span>
+      <span>Croissants</span><span class="dot">✦</span>
+      <span>Cinnamon Rolls</span><span class="dot">✦</span>
+      <span>Artisan Loaves</span><span class="dot">✦</span>
+      <span>Custom Cakes</span><span class="dot">✦</span>
+      <span>Cookies</span><span class="dot">✦</span>
+      <span>Muffins</span><span class="dot">✦</span>
+      <span>Seasonal Pies</span><span class="dot">✦</span>
+    </div>
+  </div>
+
+  <!-- ABOUT -->
+  <section class="about" id="about">
+    <div class="about-visual">
+      <div class="about-card">
+        <p style="font-family:'Playfair Display',serif; font-style:italic; font-size:1.15rem; line-height:1.75; color:var(--brown); padding-top:1.5rem;">"We started Good Lookin' because we believed our little town deserved bread worth waking up for. Seven years later, we still believe it."</p>
+        <p style="margin-top:1.2rem; font-size:0.82rem; font-weight:700; letter-spacing:0.12em; text-transform:uppercase; color:var(--caramel);">— The Bakers</p>
+        <div class="about-stat">
+          <div>
+            <div class="stat-num">47</div>
+            <div class="stat-label">Recipes</div>
+          </div>
+          <div>
+            <div class="stat-num">7</div>
+            <div class="stat-label">Years Open</div>
+          </div>
+          <div>
+            <div class="stat-num">∞</div>
+            <div class="stat-label">Good Vibes</div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="about-text">
+      <h2>Small batch.<br><em>Big flavor.</em><br>Always fresh.</h2>
+      <p>We wake up before the sun so you don't have to. Everything at Good Lookin' is made by hand, in small batches, using locally sourced ingredients whenever we can find them.</p>
+      <p>No preservatives. No shortcuts. Just the kind of baking that makes your kitchen smell like a hug — except it's our kitchen, and we're sharing it with you.</p>
+      <a href="#menu" class="btn-ghost" style="margin-top:1rem;">Browse our menu</a>
+    </div>
+  </section>
+
+  <!-- MENU -->
+  <section class="menu-section" id="menu">
+    <div class="section-header">
+      <div class="section-eyebrow">What we bake</div>
+      <h2 class="section-title">The Good Stuff<br><em>Menu</em></h2>
+    </div>
+    <div class="menu-grid">
+      <div class="menu-item">
+        <span class="menu-emoji">🍞</span>
+        <div class="menu-name">Country Sourdough</div>
+        <div class="menu-desc">72-hour cold ferment, crispy crust, chewy crumb. Our signature loaf that started it all.</div>
+        <div class="menu-price">$9</div>
+      </div>
+      <div class="menu-item">
+        <span class="menu-emoji">🥐</span>
+        <div class="menu-name">Butter Croissant</div>
+        <div class="menu-desc">27 layers of pure European butter laminated dough. Flaky, golden, utterly perfect.</div>
+        <div class="menu-price">$4.50</div>
+      </div>
+      <div class="menu-item">
+        <span class="menu-emoji">🌀</span>
+        <div class="menu-name">Cinnamon Roll</div>
+        <div class="menu-desc">Pillowy brioche dough, brown sugar cinnamon swirl, cream cheese frosting drizzle.</div>
+        <div class="menu-price">$5</div>
+      </div>
+      <div class="menu-item">
+        <span class="menu-emoji">🍪</span>
+        <div class="menu-name">Brown Butter Cookie</div>
+        <div class="menu-desc">Salted, chewy, and loaded with dark chocolate chunks. Warm from the oven until 2pm.</div>
+        <div class="menu-price">$3.50</div>
+      </div>
+      <div class="menu-item">
+        <span class="menu-emoji">🫐</span>
+        <div class="menu-name">Blueberry Muffin</div>
+        <div class="menu-desc">Bursting with local wild blueberries, lemon zest, and a crisp streusel crown.</div>
+        <div class="menu-price">$4</div>
+      </div>
+      <div class="menu-item">
+        <span class="menu-emoji">🎂</span>
+        <div class="menu-name">Custom Cakes</div>
+        <div class="menu-desc">Birthdays, weddings, or just because. Designed and baked to order with 3 days notice.</div>
+        <div class="menu-price">From $45</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- SPECIALS -->
+  <section class="specials" id="specials">
+    <div class="section-header" style="text-align:left;">
+      <div class="section-eyebrow" style="color:var(--caramel);">This week</div>
+      <h2 class="section-title" style="color:var(--brown);">Weekly <em>Specials</em></h2>
+    </div>
+    <div class="specials-grid">
+      <div class="special-feature">
+        <span class="special-tag">Featured</span>
+        <div class="special-name">Honey Cardamom<br>Morning Bun</div>
+        <div class="special-desc">A croissant dough morning bun rolled in fragrant cardamom sugar and finished with a wildflower honey drizzle. Available weekends only — and they go fast.</div>
+      </div>
+      <div class="special-side">
+        <div class="special-small">
+          <span class="special-tag" style="background:rgba(255,255,255,0.2);">New</span>
+          <div class="special-name">Olive Oil Focaccia</div>
+          <div class="special-desc" style="color:rgba(255,255,255,0.75); font-size:0.85rem; line-height:1.6;">Sea salt, rosemary, roasted garlic. Available Thursday & Friday.</div>
+        </div>
+        <div class="special-small">
+          <span class="special-tag" style="background:var(--caramel);">Limited</span>
+          <div class="special-name">Peach Galette</div>
+          <div class="special-desc">Freeform pastry with summer peaches & almond frangipane. While supplies last.</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- HOURS -->
+  <div class="hours-section" id="hours">
+    <div class="hours-inner">
+      <div class="hours-block">
+        <h3>⏰ Hours</h3>
+        <p>
+          <strong>Mon – Fri</strong><br>6:30am – 4:00pm<br><br>
+          <strong>Sat – Sun</strong><br>7:00am – 3:00pm
+        </p>
+      </div>
+      <div class="hours-divider"></div>
+      <div class="hours-block">
+        <h3>📍 Location</h3>
+        <p>
+          214 Main Street<br>
+          Downtown<br><br>
+          <strong>Free parking</strong><br>
+          behind the building
+        </p>
+      </div>
+      <div class="hours-divider"></div>
+      <div class="hours-block">
+        <h3>📞 Orders</h3>
+        <p>
+          Custom cakes &amp; large orders<br>
+          need <strong>3 days notice</strong>.<br><br>
+          Call or stop in to order —<br>
+          we love meeting you!
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <!-- CONTACT -->
+  <section class="contact-section" id="contact">
+    <div class="contact-inner">
+      <div class="section-eyebrow" style="color:var(--caramel);">Say hello</div>
+      <h2 class="section-title">Come <em>find us.</em></h2>
+      <p>We're the place with the line out the door on Saturday mornings. Worth it, we promise. Follow us on Instagram for daily specials and behind-the-scenes baking.</p>
+      <a href="tel:+15550001234" class="btn-primary">Call Us Today</a>
+      <div class="contact-details">
+        <div class="contact-item">
+          <div class="contact-icon">📞</div>
+          <div class="contact-label">Phone</div>
+          <div class="contact-value">(555) 000-1234</div>
+        </div>
+        <div class="contact-item">
+          <div class="contact-icon">📧</div>
+          <div class="contact-label">Email</div>
+          <div class="contact-value">hello@goodlookin.com</div>
+        </div>
+        <div class="contact-item">
+          <div class="contact-icon">📸</div>
+          <div class="contact-label">Instagram</div>
+          <div class="contact-value">@goodlookinbakery</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- FOOTER -->
+  <footer>
+    <div class="footer-logo">Good Lookin<span>'</span></div>
+    <p>© 2026 Good Lookin' Bakery · Made with flour &amp; love</p>
+  </footer>
+
+  <script>
+    // Navbar scroll effect
+    const navbar = document.getElementById('navbar');
+    window.addEventListener('scroll', () => {
+      navbar.classList.toggle('scrolled', window.scrollY > 50);
+    });
+
+    // Fade-in on scroll
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(e => {
+        if (e.isIntersecting) {
+          e.target.style.opacity = '1';
+          e.target.style.transform = 'translateY(0)';
+        }
+      });
+    }, { threshold: 0.1 });
+
+    document.querySelectorAll('.menu-item, .special-feature, .special-small, .about-card, .hours-block').forEach(el => {
+      el.style.opacity = '0';
+      el.style.transform = 'translateY(20px)';
+      el.style.transition = 'opacity 0.6s ease, transform 0.6s ease';
+      observer.observe(el);
+    });
+  </script>
+</body>
+</html>
